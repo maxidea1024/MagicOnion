@@ -24,6 +24,7 @@ namespace MagicOnion.Agones
             // fire and forget
             _agonesSdk.StartAsync(cancellationToken)
                 .ContinueWith(x => _logger.LogError($"Task Unhandled {x.Exception}"), TaskContinuationOptions.OnlyOnFaulted);
+            _agonesSdk.Ready();
             return Task.CompletedTask;
         }
 

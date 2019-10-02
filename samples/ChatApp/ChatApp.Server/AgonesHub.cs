@@ -1,4 +1,5 @@
-﻿using ChatApp.Shared.Hubs;
+﻿using ChatApp.Shared.Agones;
+using ChatApp.Shared.Hubs;
 using ChatApp.Shared.MessagePackObjects;
 using MagicOnion.Agones;
 using MagicOnion.Server.Hubs;

@@ -56,6 +56,7 @@ namespace Assets.Scripts
         private void InitializeClient()
         {
             // Initialize the Hub
+            //this.channel = new Channel("localhost", 12345, ChannelCredentials.Insecure);
             this.channel = new Channel("localhost", 12345, ChannelCredentials.Insecure);
             // for SSL/TLS connection
             //var serverCred = new SslCredentials(File.ReadAllText(Path.Combine(Application.streamingAssetsPath, "server.crt")));

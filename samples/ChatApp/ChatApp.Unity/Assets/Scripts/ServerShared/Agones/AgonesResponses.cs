@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace MagicOnion.Agones
+namespace ChatApp.Shared.Agones
 {
     public class NullResponse { }
 
