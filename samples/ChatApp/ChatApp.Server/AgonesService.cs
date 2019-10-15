@@ -1,4 +1,5 @@
-﻿using ChatApp.Shared.Services;
+﻿using ChatApp.Shared.MessagePackObjects;
+using ChatApp.Shared.Services;
 using MagicOnion;
 using MagicOnion.Agones;
 using MagicOnion.Server;
@@ -19,16 +20,20 @@ namespace ChatApp.Server
             return res;
         }
 
-        public async UnaryResult<(string, int)> GetGameServer()
+        public async UnaryResult<AgonesGameServerResponse> GetGameServer()
         {
             var res = await _agones.GameServer();
             if (res.ok)
             {
-                return (res.response.status.address, res.response.status.ports[0].port);
+                return new AgonesGameServerResponse
+                {
+                    Host = res.response.status.address,
+                    Port = res.response.status.ports[0].port
+                };
             }
             else
             {
-                return ("", 0);
+                return new AgonesGameServerResponse();
             }
         }
     }

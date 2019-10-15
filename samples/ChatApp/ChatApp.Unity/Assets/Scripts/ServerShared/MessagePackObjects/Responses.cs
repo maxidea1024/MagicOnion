@@ -14,4 +14,14 @@ namespace ChatApp.Shared.MessagePackObjects
         [Key(1)]
         public string Message { get; set; }
     }
+
+    [MessagePackObject]
+    public struct AgonesGameServerResponse
+    {
+        [Key(0)]
+        public string Host { get; set; }
+        
+        [Key(1)]
+        public int Port { get; set; }
+    }
 }

@@ -43,10 +43,11 @@ namespace MessagePack.Resolvers
 
         static GeneratedResolverGetFormatterHelper()
         {
-            lookup = new global::System.Collections.Generic.Dictionary<Type, int>(2)
+            lookup = new global::System.Collections.Generic.Dictionary<Type, int>(3)
             {
                 {typeof(global::ChatApp.Shared.MessagePackObjects.JoinRequest), 0 },
                 {typeof(global::ChatApp.Shared.MessagePackObjects.MessageResponse), 1 },
+                {typeof(global::ChatApp.Shared.MessagePackObjects.AgonesGameServerResponse), 2 },
             };
         }
 
@@ -59,6 +60,7 @@ namespace MessagePack.Resolvers
             {
                 case 0: return new MessagePack.Formatters.ChatApp.Shared.MessagePackObjects.JoinRequestFormatter();
                 case 1: return new MessagePack.Formatters.ChatApp.Shared.MessagePackObjects.MessageResponseFormatter();
+                case 2: return new MessagePack.Formatters.ChatApp.Shared.MessagePackObjects.AgonesGameServerResponseFormatter();
                 default: return null;
             }
         }
@@ -190,6 +192,62 @@ namespace MessagePack.Formatters.ChatApp.Shared.MessagePackObjects
             var ____result = new global::ChatApp.Shared.MessagePackObjects.MessageResponse();
             ____result.UserName = __UserName__;
             ____result.Message = __Message__;
+            return ____result;
+        }
+    }
+
+
+    public sealed class AgonesGameServerResponseFormatter : global::MessagePack.Formatters.IMessagePackFormatter<global::ChatApp.Shared.MessagePackObjects.AgonesGameServerResponse>
+    {
+
+        public int Serialize(ref byte[] bytes, int offset, global::ChatApp.Shared.MessagePackObjects.AgonesGameServerResponse value, global::MessagePack.IFormatterResolver formatterResolver)
+        {
+            
+            var startOffset = offset;
+            offset += global::MessagePack.MessagePackBinary.WriteFixedArrayHeaderUnsafe(ref bytes, offset, 2);
+            offset += formatterResolver.GetFormatterWithVerify<string>().Serialize(ref bytes, offset, value.Host, formatterResolver);
+            offset += MessagePackBinary.WriteInt32(ref bytes, offset, value.Port);
+            return offset - startOffset;
+        }
+
+        public global::ChatApp.Shared.MessagePackObjects.AgonesGameServerResponse Deserialize(byte[] bytes, int offset, global::MessagePack.IFormatterResolver formatterResolver, out int readSize)
+        {
+            if (global::MessagePack.MessagePackBinary.IsNil(bytes, offset))
+            {
+                throw new InvalidOperationException("typecode is null, struct not supported");
+            }
+
+            var startOffset = offset;
+            var length = global::MessagePack.MessagePackBinary.ReadArrayHeader(bytes, offset, out readSize);
+            offset += readSize;
+
+            var __Host__ = default(string);
+            var __Port__ = default(int);
+
+            for (int i = 0; i < length; i++)
+            {
+                var key = i;
+
+                switch (key)
+                {
+                    case 0:
+                        __Host__ = formatterResolver.GetFormatterWithVerify<string>().Deserialize(bytes, offset, formatterResolver, out readSize);
+                        break;
+                    case 1:
+                        __Port__ = MessagePackBinary.ReadInt32(bytes, offset, out readSize);
+                        break;
+                    default:
+                        readSize = global::MessagePack.MessagePackBinary.ReadNextBlock(bytes, offset);
+                        break;
+                }
+                offset += readSize;
+            }
+
+            readSize = offset - startOffset;
+
+            var ____result = new global::ChatApp.Shared.MessagePackObjects.AgonesGameServerResponse();
+            ____result.Host = __Host__;
+            ____result.Port = __Port__;
             return ____result;
         }
     }

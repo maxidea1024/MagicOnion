@@ -12,6 +12,8 @@ namespace Assets.Scripts
 {
     public class ChatComponent : MonoBehaviour, IChatHubReceiver
     {
+        private IAgonesService matchingAgones;
+        private Channel agonesChannel;
         private Channel channel;
         private IChatHub streamingClient;
         private IChatService client;
@@ -21,6 +23,8 @@ namespace Assets.Scripts
         private bool isSelfDisConnected;
 
         public Text ChatText;
+
+        public Button ConnectButton;
 
         public Button JoinOrLeaveButton;
 
@@ -41,7 +45,8 @@ namespace Assets.Scripts
 
         void Start()
         {
-            this.InitializeClient();
+            //this.InitializeClient();
+            this.InitializeAgonesClient();
             this.InitializeUi();
         }
 
@@ -53,13 +58,19 @@ namespace Assets.Scripts
             await this.channel.ShutdownAsync();
         }
 
+        private void InitializeAgonesClient()
+        {
+            var matchingAgonesChannel = new Channel("13.231.213.229", 7126, ChannelCredentials.Insecure);
+            matchingAgones = MagicOnionClient.Create<IAgonesService>(matchingAgonesChannel);
+        }
 
         private void InitializeClient()
         {
             // Initialize the Hub
             //this.channel = new Channel("localhost", 12345, ChannelCredentials.Insecure);
             //this.channel = new Channel("localhost", 12345, ChannelCredentials.Insecure);
-            this.channel = new Channel("13.231.213.229", 7622, ChannelCredentials.Insecure);
+            this.channel = new Channel("13.231.213.229", 7126, ChannelCredentials.Insecure);
+
             // for SSL/TLS connection
             //var serverCred = new SslCredentials(File.ReadAllText(Path.Combine(Application.streamingAssetsPath, "server.crt")));
             //this.channel = new Channel("test.example.com", 12345, serverCred);
@@ -110,11 +121,11 @@ namespace Assets.Scripts
             }
         }
 
-
         public async void DisconnectServer()
         {
             this.isSelfDisConnected = true;
 
+            this.ConnectButton.interactable = false;
             this.JoinOrLeaveButton.interactable = false;
             this.SendMessageButton.interactable = false;
             this.SendReportButton.interactable = false;
@@ -136,6 +147,7 @@ namespace Assets.Scripts
             Debug.Log("Reconnected server.");
 
             this.JoinOrLeaveButton.interactable = true;
+            this.JoinOrLeaveButton.interactable = true;
             this.SendMessageButton.interactable = false;
             this.SendReportButton.interactable = true;
             this.DisconnectButon.interactable = true;
@@ -145,6 +157,25 @@ namespace Assets.Scripts
             this.isSelfDisConnected = false;
         }
 
+        #region Client -> Server (Unary)
+        public async void Connect()
+        {
+            Debug.Log("Connect");
+            var res = await matchingAgones.GetGameServer();
+            Debug.Log($"connectionInfo, host: {res.Host}, port: {res.Port}");
+
+            // Initialize the Hub
+            this.channel = new Channel(res.Host, res.Port, ChannelCredentials.Insecure);
+
+            // for SSL/TLS connection
+            //var serverCred = new SslCredentials(File.ReadAllText(Path.Combine(Application.streamingAssetsPath, "server.crt")));
+            //this.channel = new Channel("test.example.com", 12345, serverCred);
+            this.streamingClient = StreamingHubClient.Connect<IChatHub, IChatHubReceiver>(this.channel, this);
+            this.RegisterDisconnectEvent(streamingClient);
+            this.client = MagicOnionClient.Create<IChatService>(this.channel);
+            this.agonesClient = MagicOnionClient.Create<IAgonesService>(this.channel);
+        }
+        #endregion
 
         #region Client -> Server (Streaming)
         public async void JoinOrLeave()

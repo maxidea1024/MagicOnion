@@ -1,4 +1,5 @@
-﻿using MagicOnion;
+﻿using ChatApp.Shared.MessagePackObjects;
+using MagicOnion;
 using MessagePack;
 
 namespace ChatApp.Shared.Services
@@ -9,6 +10,6 @@ namespace ChatApp.Shared.Services
     public interface IAgonesService : IService<IAgonesService>
     {
         UnaryResult<bool> Allocate();
-        UnaryResult<(string, int)> GetGameServer();
+        UnaryResult<AgonesGameServerResponse> GetGameServer();
     }
 }
