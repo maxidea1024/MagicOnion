@@ -15,6 +15,7 @@ namespace Assets.Scripts
         private Channel channel;
         private IChatHub streamingClient;
         private IChatService client;
+        private IAgonesService agonesClient;
 
         private bool isJoin;
         private bool isSelfDisConnected;
@@ -57,13 +58,15 @@ namespace Assets.Scripts
         {
             // Initialize the Hub
             //this.channel = new Channel("localhost", 12345, ChannelCredentials.Insecure);
-            this.channel = new Channel("localhost", 12345, ChannelCredentials.Insecure);
+            //this.channel = new Channel("localhost", 12345, ChannelCredentials.Insecure);
+            this.channel = new Channel("13.231.213.229", 7622, ChannelCredentials.Insecure);
             // for SSL/TLS connection
             //var serverCred = new SslCredentials(File.ReadAllText(Path.Combine(Application.streamingAssetsPath, "server.crt")));
             //this.channel = new Channel("test.example.com", 12345, serverCred);
             this.streamingClient = StreamingHubClient.Connect<IChatHub, IChatHubReceiver>(this.channel, this);
             this.RegisterDisconnectEvent(streamingClient);
             this.client = MagicOnionClient.Create<IChatService>(this.channel);
+            this.agonesClient = MagicOnionClient.Create<IAgonesService>(this.channel);
         }
 
 
@@ -99,6 +102,10 @@ namespace Assets.Scripts
 
                     // reconnect
                     this.ReconnectServer();
+                }
+                else
+                {
+                    // agones shutdown
                 }
             }
         }
@@ -152,6 +159,7 @@ namespace Assets.Scripts
             {
                 var request = new JoinRequest { RoomName = "SampleRoom", UserName = this.Input.text };
                 await this.streamingClient.JoinAsync(request);
+                await this.agonesClient.Allocate();
 
                 this.isJoin = true;
                 this.SendMessageButton.interactable = true;

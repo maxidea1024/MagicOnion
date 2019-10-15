@@ -13,6 +13,12 @@ namespace ChatApp.Server
         {
             _agones = agones;
         }
+        public async UnaryResult<bool> Allocate()
+        {
+            var res = await _agones.Allocate();
+            return res;
+        }
+
         public async UnaryResult<(string, int)> GetGameServer()
         {
             var res = await _agones.GameServer();

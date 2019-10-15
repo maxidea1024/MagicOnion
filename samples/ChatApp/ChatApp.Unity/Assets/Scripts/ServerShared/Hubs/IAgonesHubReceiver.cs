@@ -7,6 +7,7 @@ namespace ChatApp.Shared.Hubs
     /// </summary>
     public interface IAgonesHubReceiver
     {
+        void OnAllocate();
         void OnGetGameServer(string endpoint);
         void OnExitGameServer();
     }

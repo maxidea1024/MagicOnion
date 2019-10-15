@@ -22,7 +22,7 @@ namespace MagicOnion.Agones
         // ref: sdk server https://github.com/googleforgames/agones/blob/master/cmd/sdk-server/main.go
         // grpc: localhost on port 59357
         // http: localhost on port 59358
-        readonly Uri SideCarAddress = new Uri("http://127.0.0.1:59358");
+        readonly Uri sideCarAddress = new Uri("http://127.0.0.1:59358");
         readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         readonly HttpClient _httpClient;
         readonly ILogger<IAgonesSdk> _logger;
@@ -32,7 +32,7 @@ namespace MagicOnion.Agones
             _logger = logger;
             _httpClient = new HttpClient();
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            _httpClient.BaseAddress = SideCarAddress;
+            _httpClient.BaseAddress = sideCarAddress;
             jsonCache.TryAdd("{}", new StringContent("{}", encoding, "application/json"));
         }
 

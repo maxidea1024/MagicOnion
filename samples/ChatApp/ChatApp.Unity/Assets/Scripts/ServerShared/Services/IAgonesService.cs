@@ -8,6 +8,7 @@ namespace ChatApp.Shared.Services
     /// </summary>
     public interface IAgonesService : IService<IAgonesService>
     {
+        UnaryResult<bool> Allocate();
         UnaryResult<(string, int)> GetGameServer();
     }
 }

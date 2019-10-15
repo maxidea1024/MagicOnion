@@ -21,6 +21,12 @@ namespace ChatApp.Server
             _agones = agones;
         }
 
+        public async Task<bool> AllocateAsync()
+        {
+            var res = await _agones.Allocate();
+            return res;
+        }
+
         public async Task<GameServerResponse> GetGameServerAsync()
         {
             var res = await _agones.GameServer();

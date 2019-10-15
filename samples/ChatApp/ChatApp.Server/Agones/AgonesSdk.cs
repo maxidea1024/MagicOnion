@@ -140,7 +140,7 @@ namespace MagicOnion.Agones
                     _logger.LogError($"{DateTime.Now} health detect error, let retry. {ex.Message}");
                 }
 
-                await Task.Delay(TimeSpan.FromSeconds(HealthIntervalSecond));
+                await Task.Delay(TimeSpan.FromSeconds(HealthIntervalSecond), ct);
             }
         }
 

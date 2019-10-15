@@ -12,6 +12,7 @@ namespace ChatApp.Shared.Hubs
     /// </summary>
     public interface IAgonesHub : IStreamingHub<IAgonesHub, IAgonesHubReceiver>
     {
+        Task<bool> AllocateAsync();
         Task<GameServerResponse> GetGameServerAsync();
 
         Task ExitGameServerAsync();
