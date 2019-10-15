@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+	<TargetFramework>netcoreapp2.2</TargetFramework>
+	<LangVersion>7.3</LangVersion>
+	<RestoreAdditionalProjectSources>
+		https://www.myget.org/F/opentelemetry/api/v3/index.json;
+	</RestoreAdditionalProjectSources>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\ChatApp.Unity\Assets\Scripts\ServerShared\**\*.cs" LinkBase="LinkFromUnity" />
+  </ItemGroup>
+
+  <ItemGroup>
+	<PackageReference Include="MagicOnion.Hosting" Version="2.1.0" />
+	<PackageReference Include="Utf8Json" Version="1.3.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+	<Folder Include="LinkFromUnity\" />
+  </ItemGroup>
+
+</Project>
