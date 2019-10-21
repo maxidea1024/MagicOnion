@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+	<Folder Include="KubernetesService\Respones\" />
 	<Folder Include="LinkFromUnity\" />
   </ItemGroup>
 

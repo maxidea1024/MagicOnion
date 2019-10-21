@@ -21,21 +21,21 @@ namespace ChatApp.Match
 
         public UnaryResult<MatchDataReponse> GetAsync(string clientId)
         {
-            _logger.LogInformation($"Get clientId. {clientId}");
+            _logger.LogInformation($"Get GameServer. clientId: {clientId}");
             var match = MatchModel.GetOrJoin(clientId);
             return UnaryResult(match.ToMessagePackObject());
         }
 
         public UnaryResult<MatchDataReponse> JoinAsync(string matchId, string clientId)
         {
-            _logger.LogInformation($"Join matching id. {matchId}");
+            _logger.LogInformation($"Join GameServer. matchId: {matchId}");
             var match = MatchModel.Join(matchId, clientId);
             return UnaryResult(match.ToMessagePackObject());
         }
 
         public UnaryResult<Nil> LeaveAsync(string matchId, string clientId)
         {
-            _logger.LogInformation($"Leave matching id. {matchId}");
+            _logger.LogInformation($"Leave GameServer. matchId: {matchId}");
             MatchModel.Leave(matchId, clientId);
             return ReturnNil();
         }

@@ -22,7 +22,9 @@ namespace MagicOnion
             if(isRegistered) return;
             isRegistered = true;
 
+            MagicOnionClientRegistry<ChatApp.Shared.Services.IAgonesService>.Register((x, y) => new ChatApp.Shared.Services.IAgonesServiceClient(x, y));
             MagicOnionClientRegistry<ChatApp.Shared.Services.IChatService>.Register((x, y) => new ChatApp.Shared.Services.IChatServiceClient(x, y));
+            MagicOnionClientRegistry<ChatApp.Shared.Services.IMatchService>.Register((x, y) => new ChatApp.Shared.Services.IMatchServiceClient(x, y));
 
             StreamingHubClientRegistry<ChatApp.Shared.Hubs.IChatHub, ChatApp.Shared.Hubs.IChatHubReceiver>.Register((a, _, b, c, d, e) => new ChatApp.Shared.Hubs.IChatHubClient(a, b, c, d, e));
         }
@@ -80,11 +82,12 @@ namespace MagicOnion.Resolvers
 
         static MagicOnionResolverGetFormatterHelper()
         {
-            lookup = new global::System.Collections.Generic.Dictionary<Type, int>(3)
+            lookup = new global::System.Collections.Generic.Dictionary<Type, int>(4)
             {
                 {typeof(global::MagicOnion.DynamicArgumentTuple<global::System.Collections.Generic.List<int>, global::System.Collections.Generic.Dictionary<int, string>>), 0 },
-                {typeof(global::System.Collections.Generic.Dictionary<int, string>), 1 },
-                {typeof(global::System.Collections.Generic.List<int>), 2 },
+                {typeof(global::MagicOnion.DynamicArgumentTuple<string, string>), 1 },
+                {typeof(global::System.Collections.Generic.Dictionary<int, string>), 2 },
+                {typeof(global::System.Collections.Generic.List<int>), 3 },
             };
         }
 
@@ -99,8 +102,9 @@ namespace MagicOnion.Resolvers
             switch (key)
             {
                 case 0: return new global::MagicOnion.DynamicArgumentTupleFormatter<global::System.Collections.Generic.List<int>, global::System.Collections.Generic.Dictionary<int, string>>(default(global::System.Collections.Generic.List<int>), default(global::System.Collections.Generic.Dictionary<int, string>));
-                case 1: return new global::MessagePack.Formatters.DictionaryFormatter<int, string>();
-                case 2: return new global::MessagePack.Formatters.ListFormatter<int>();
+                case 1: return new global::MagicOnion.DynamicArgumentTupleFormatter<string, string>(default(string), default(string));
+                case 2: return new global::MessagePack.Formatters.DictionaryFormatter<int, string>();
+                case 3: return new global::MessagePack.Formatters.ListFormatter<int>();
                 default: return null;
             }
         }
@@ -123,6 +127,75 @@ namespace ChatApp.Shared.Services {
     using MagicOnion.Client;
     using Grpc.Core;
     using MessagePack;
+
+    public class IAgonesServiceClient : MagicOnionClientBase<global::ChatApp.Shared.Services.IAgonesService>, global::ChatApp.Shared.Services.IAgonesService
+    {
+        static readonly Method<byte[], byte[]> AllocateMethod;
+        static readonly Method<byte[], byte[]> GetGameServerMethod;
+
+        static IAgonesServiceClient()
+        {
+            AllocateMethod = new Method<byte[], byte[]>(MethodType.Unary, "IAgonesService", "Allocate", MagicOnionMarshallers.ThroughMarshaller, MagicOnionMarshallers.ThroughMarshaller);
+            GetGameServerMethod = new Method<byte[], byte[]>(MethodType.Unary, "IAgonesService", "GetGameServer", MagicOnionMarshallers.ThroughMarshaller, MagicOnionMarshallers.ThroughMarshaller);
+        }
+
+        IAgonesServiceClient()
+        {
+        }
+
+        public IAgonesServiceClient(CallInvoker callInvoker, IFormatterResolver resolver)
+            : base(callInvoker, resolver)
+        {
+        }
+
+        protected override MagicOnionClientBase<IAgonesService> Clone()
+        {
+            var clone = new IAgonesServiceClient();
+            clone.host = this.host;
+            clone.option = this.option;
+            clone.callInvoker = this.callInvoker;
+            clone.resolver = this.resolver;
+            return clone;
+        }
+
+        public new IAgonesService WithHeaders(Metadata headers)
+        {
+            return base.WithHeaders(headers);
+        }
+
+        public new IAgonesService WithCancellationToken(System.Threading.CancellationToken cancellationToken)
+        {
+            return base.WithCancellationToken(cancellationToken);
+        }
+
+        public new IAgonesService WithDeadline(System.DateTime deadline)
+        {
+            return base.WithDeadline(deadline);
+        }
+
+        public new IAgonesService WithHost(string host)
+        {
+            return base.WithHost(host);
+        }
+
+        public new IAgonesService WithOptions(CallOptions option)
+        {
+            return base.WithOptions(option);
+        }
+   
+        public global::MagicOnion.UnaryResult<bool> Allocate()
+        {
+            var __request = MagicOnionMarshallers.UnsafeNilBytes;
+            var __callResult = callInvoker.AsyncUnaryCall(AllocateMethod, base.host, base.option, __request);
+            return new UnaryResult<bool>(__callResult, base.resolver);
+        }
+        public global::MagicOnion.UnaryResult<global::ChatApp.Shared.MessagePackObjects.AgonesGameServerResponse> GetGameServer()
+        {
+            var __request = MagicOnionMarshallers.UnsafeNilBytes;
+            var __callResult = callInvoker.AsyncUnaryCall(GetGameServerMethod, base.host, base.option, __request);
+            return new UnaryResult<global::ChatApp.Shared.MessagePackObjects.AgonesGameServerResponse>(__callResult, base.resolver);
+        }
+    }
 
     public class IChatServiceClient : MagicOnionClientBase<global::ChatApp.Shared.Services.IChatService>, global::ChatApp.Shared.Services.IChatService
     {
@@ -189,6 +262,83 @@ namespace ChatApp.Shared.Services {
         {
             var __request = LZ4MessagePackSerializer.Serialize(message, base.resolver);
             var __callResult = callInvoker.AsyncUnaryCall(SendReportAsyncMethod, base.host, base.option, __request);
+            return new UnaryResult<global::MessagePack.Nil>(__callResult, base.resolver);
+        }
+    }
+
+    public class IMatchServiceClient : MagicOnionClientBase<global::ChatApp.Shared.Services.IMatchService>, global::ChatApp.Shared.Services.IMatchService
+    {
+        static readonly Method<byte[], byte[]> JoinAsyncMethod;
+        static readonly Method<byte[], byte[]> GetAsyncMethod;
+        static readonly Method<byte[], byte[]> LeaveAsyncMethod;
+
+        static IMatchServiceClient()
+        {
+            JoinAsyncMethod = new Method<byte[], byte[]>(MethodType.Unary, "IMatchService", "JoinAsync", MagicOnionMarshallers.ThroughMarshaller, MagicOnionMarshallers.ThroughMarshaller);
+            GetAsyncMethod = new Method<byte[], byte[]>(MethodType.Unary, "IMatchService", "GetAsync", MagicOnionMarshallers.ThroughMarshaller, MagicOnionMarshallers.ThroughMarshaller);
+            LeaveAsyncMethod = new Method<byte[], byte[]>(MethodType.Unary, "IMatchService", "LeaveAsync", MagicOnionMarshallers.ThroughMarshaller, MagicOnionMarshallers.ThroughMarshaller);
+        }
+
+        IMatchServiceClient()
+        {
+        }
+
+        public IMatchServiceClient(CallInvoker callInvoker, IFormatterResolver resolver)
+            : base(callInvoker, resolver)
+        {
+        }
+
+        protected override MagicOnionClientBase<IMatchService> Clone()
+        {
+            var clone = new IMatchServiceClient();
+            clone.host = this.host;
+            clone.option = this.option;
+            clone.callInvoker = this.callInvoker;
+            clone.resolver = this.resolver;
+            return clone;
+        }
+
+        public new IMatchService WithHeaders(Metadata headers)
+        {
+            return base.WithHeaders(headers);
+        }
+
+        public new IMatchService WithCancellationToken(System.Threading.CancellationToken cancellationToken)
+        {
+            return base.WithCancellationToken(cancellationToken);
+        }
+
+        public new IMatchService WithDeadline(System.DateTime deadline)
+        {
+            return base.WithDeadline(deadline);
+        }
+
+        public new IMatchService WithHost(string host)
+        {
+            return base.WithHost(host);
+        }
+
+        public new IMatchService WithOptions(CallOptions option)
+        {
+            return base.WithOptions(option);
+        }
+   
+        public global::MagicOnion.UnaryResult<global::ChatApp.Shared.MessagePackObjects.MatchDataReponse> JoinAsync(string matchId, string clientId)
+        {
+            var __request = LZ4MessagePackSerializer.Serialize(new DynamicArgumentTuple<string, string>(matchId, clientId), base.resolver);
+            var __callResult = callInvoker.AsyncUnaryCall(JoinAsyncMethod, base.host, base.option, __request);
+            return new UnaryResult<global::ChatApp.Shared.MessagePackObjects.MatchDataReponse>(__callResult, base.resolver);
+        }
+        public global::MagicOnion.UnaryResult<global::ChatApp.Shared.MessagePackObjects.MatchDataReponse> GetAsync(string clientId)
+        {
+            var __request = LZ4MessagePackSerializer.Serialize(clientId, base.resolver);
+            var __callResult = callInvoker.AsyncUnaryCall(GetAsyncMethod, base.host, base.option, __request);
+            return new UnaryResult<global::ChatApp.Shared.MessagePackObjects.MatchDataReponse>(__callResult, base.resolver);
+        }
+        public global::MagicOnion.UnaryResult<global::MessagePack.Nil> LeaveAsync(string matchId, string clientId)
+        {
+            var __request = LZ4MessagePackSerializer.Serialize(new DynamicArgumentTuple<string, string>(matchId, clientId), base.resolver);
+            var __callResult = callInvoker.AsyncUnaryCall(LeaveAsyncMethod, base.host, base.option, __request);
             return new UnaryResult<global::MessagePack.Nil>(__callResult, base.resolver);
         }
     }

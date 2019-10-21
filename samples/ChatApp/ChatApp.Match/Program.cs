@@ -23,11 +23,11 @@ namespace ChatApp.Match
                 .ConfigureServices((context, services) =>
                 {
                     services.AddSingleton<IAgonesSdk, AgonesSdk>();
-                    services.AddHostedService<AgonesHostedService>();
+                    //services.AddHostedService<AgonesHostedService>();
                 })
                 .UseMagicOnion(
                     new MagicOnionOptions(isReturnExceptionStackTraceInErrorDetail: true),
-                    new ServerPort("0.0.0.0", 12345, ServerCredentials.Insecure))
+                    new ServerPort("0.0.0.0", 12346, ServerCredentials.Insecure))
                 // for SSL/TLS Connection
                 //new ServerPort(config.GetValue<string>("MAGICONION_HOST", "127.0.0.1"), 12345, credential))
                 .RunConsoleAsync();

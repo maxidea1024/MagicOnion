@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using ChatApp.Match.Data;
+using ChatApp.Match.KubernetesService;
 
 namespace ChatApp.Match.Cache
 {
@@ -20,8 +21,10 @@ namespace ChatApp.Match.Cache
             {
                 matchId = Guid.NewGuid().ToString();
             }
+            // TODO: Retrieve GameServer host:port from AgoneSDK.
             var host = "127.0.0.1";
             var port = 12345;
+            var gameServers = GameServer.Current;
             var data = new RoomData
             {
                 Id = (host + port).GetHashCode().ToString(),

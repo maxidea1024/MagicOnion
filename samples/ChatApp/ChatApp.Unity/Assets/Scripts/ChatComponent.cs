@@ -3,6 +3,7 @@ using ChatApp.Shared.MessagePackObjects;
 using ChatApp.Shared.Services;
 using Grpc.Core;
 using MagicOnion.Client;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -12,12 +13,14 @@ namespace Assets.Scripts
 {
     public class ChatComponent : MonoBehaviour, IChatHubReceiver
     {
+        private IMatchService matchingClient;
         private IAgonesService matchingAgones;
         private Channel agonesChannel;
         private Channel channel;
         private IChatHub streamingClient;
         private IChatService client;
         private IAgonesService agonesClient;
+        private string clientId = Guid.NewGuid().ToString();
 
         private bool isJoin;
         private bool isSelfDisConnected;
@@ -46,7 +49,8 @@ namespace Assets.Scripts
         void Start()
         {
             //this.InitializeClient();
-            this.InitializeAgonesClient();
+            //this.InitializeAgonesClient();
+            this.InitializeMatchClient();
             this.InitializeUi();
         }
 
@@ -58,9 +62,17 @@ namespace Assets.Scripts
             await this.channel.ShutdownAsync();
         }
 
+        private void InitializeMatchClient()
+        {
+            //var matchingAgonesChannel = new Channel("13.231.213.229", 7126, ChannelCredentials.Insecure);
+            var matchingAgonesChannel = new Channel("localhost", 12346, ChannelCredentials.Insecure);
+            matchingClient = MagicOnionClient.Create<IMatchService>(matchingAgonesChannel);
+        }
+
         private void InitializeAgonesClient()
         {
-            var matchingAgonesChannel = new Channel("13.231.213.229", 7126, ChannelCredentials.Insecure);
+            //var matchingAgonesChannel = new Channel("13.231.213.229", 7126, ChannelCredentials.Insecure);
+            var matchingAgonesChannel = new Channel("localhost", 12346, ChannelCredentials.Insecure);
             matchingAgones = MagicOnionClient.Create<IAgonesService>(matchingAgonesChannel);
         }
 
@@ -161,19 +173,22 @@ namespace Assets.Scripts
         public async void Connect()
         {
             Debug.Log("Connect");
-            var res = await matchingAgones.GetGameServer();
-            Debug.Log($"connectionInfo, host: {res.Host}, port: {res.Port}");
+            var matchResponse = await matchingClient.GetAsync(clientId);
+            Debug.Log($"connectionInfo, host: {matchResponse.Room.Host}, port: {matchResponse.Room.Port}");
 
-            // Initialize the Hub
-            this.channel = new Channel(res.Host, res.Port, ChannelCredentials.Insecure);
+            //var res = await matchingAgones.GetGameServer();
+            //Debug.Log($"connectionInfo, host: {res.Host}, port: {res.Port}");
 
-            // for SSL/TLS connection
-            //var serverCred = new SslCredentials(File.ReadAllText(Path.Combine(Application.streamingAssetsPath, "server.crt")));
-            //this.channel = new Channel("test.example.com", 12345, serverCred);
-            this.streamingClient = StreamingHubClient.Connect<IChatHub, IChatHubReceiver>(this.channel, this);
-            this.RegisterDisconnectEvent(streamingClient);
-            this.client = MagicOnionClient.Create<IChatService>(this.channel);
-            this.agonesClient = MagicOnionClient.Create<IAgonesService>(this.channel);
+            //// Initialize the Hub
+            //this.channel = new Channel(res.Host, res.Port, ChannelCredentials.Insecure);
+
+            //// for SSL/TLS connection
+            ////var serverCred = new SslCredentials(File.ReadAllText(Path.Combine(Application.streamingAssetsPath, "server.crt")));
+            ////this.channel = new Channel("test.example.com", 12345, serverCred);
+            //this.streamingClient = StreamingHubClient.Connect<IChatHub, IChatHubReceiver>(this.channel, this);
+            //this.RegisterDisconnectEvent(streamingClient);
+            //this.client = MagicOnionClient.Create<IChatService>(this.channel);
+            //this.agonesClient = MagicOnionClient.Create<IAgonesService>(this.channel);
         }
         #endregion
 

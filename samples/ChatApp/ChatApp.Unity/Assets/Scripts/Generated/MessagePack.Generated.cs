@@ -43,11 +43,13 @@ namespace MessagePack.Resolvers
 
         static GeneratedResolverGetFormatterHelper()
         {
-            lookup = new global::System.Collections.Generic.Dictionary<Type, int>(3)
+            lookup = new global::System.Collections.Generic.Dictionary<Type, int>(5)
             {
-                {typeof(global::ChatApp.Shared.MessagePackObjects.JoinRequest), 0 },
-                {typeof(global::ChatApp.Shared.MessagePackObjects.MessageResponse), 1 },
-                {typeof(global::ChatApp.Shared.MessagePackObjects.AgonesGameServerResponse), 2 },
+                {typeof(global::ChatApp.Shared.MessagePackObjects.RoomDataResponse), 0 },
+                {typeof(global::ChatApp.Shared.MessagePackObjects.MatchDataReponse), 1 },
+                {typeof(global::ChatApp.Shared.MessagePackObjects.JoinRequest), 2 },
+                {typeof(global::ChatApp.Shared.MessagePackObjects.MessageResponse), 3 },
+                {typeof(global::ChatApp.Shared.MessagePackObjects.AgonesGameServerResponse), 4 },
             };
         }
 
@@ -58,9 +60,11 @@ namespace MessagePack.Resolvers
 
             switch (key)
             {
-                case 0: return new MessagePack.Formatters.ChatApp.Shared.MessagePackObjects.JoinRequestFormatter();
-                case 1: return new MessagePack.Formatters.ChatApp.Shared.MessagePackObjects.MessageResponseFormatter();
-                case 2: return new MessagePack.Formatters.ChatApp.Shared.MessagePackObjects.AgonesGameServerResponseFormatter();
+                case 0: return new MessagePack.Formatters.ChatApp.Shared.MessagePackObjects.RoomDataResponseFormatter();
+                case 1: return new MessagePack.Formatters.ChatApp.Shared.MessagePackObjects.MatchDataReponseFormatter();
+                case 2: return new MessagePack.Formatters.ChatApp.Shared.MessagePackObjects.JoinRequestFormatter();
+                case 3: return new MessagePack.Formatters.ChatApp.Shared.MessagePackObjects.MessageResponseFormatter();
+                case 4: return new MessagePack.Formatters.ChatApp.Shared.MessagePackObjects.AgonesGameServerResponseFormatter();
                 default: return null;
             }
         }
@@ -83,6 +87,154 @@ namespace MessagePack.Formatters.ChatApp.Shared.MessagePackObjects
 {
     using System;
     using MessagePack;
+
+
+    public sealed class RoomDataResponseFormatter : global::MessagePack.Formatters.IMessagePackFormatter<global::ChatApp.Shared.MessagePackObjects.RoomDataResponse>
+    {
+
+        public int Serialize(ref byte[] bytes, int offset, global::ChatApp.Shared.MessagePackObjects.RoomDataResponse value, global::MessagePack.IFormatterResolver formatterResolver)
+        {
+            
+            var startOffset = offset;
+            offset += global::MessagePack.MessagePackBinary.WriteFixedArrayHeaderUnsafe(ref bytes, offset, 7);
+            offset += formatterResolver.GetFormatterWithVerify<string>().Serialize(ref bytes, offset, value.Id, formatterResolver);
+            offset += formatterResolver.GetFormatterWithVerify<string>().Serialize(ref bytes, offset, value.Host, formatterResolver);
+            offset += MessagePackBinary.WriteInt32(ref bytes, offset, value.Port);
+            offset += MessagePackBinary.WriteInt32(ref bytes, offset, value.ConnectionNumber);
+            offset += MessagePackBinary.WriteInt32(ref bytes, offset, value.ConnectionLimit);
+            offset += formatterResolver.GetFormatterWithVerify<global::System.DateTimeOffset>().Serialize(ref bytes, offset, value.CreateAt, formatterResolver);
+            offset += formatterResolver.GetFormatterWithVerify<string[]>().Serialize(ref bytes, offset, value.JoinedConnections, formatterResolver);
+            return offset - startOffset;
+        }
+
+        public global::ChatApp.Shared.MessagePackObjects.RoomDataResponse Deserialize(byte[] bytes, int offset, global::MessagePack.IFormatterResolver formatterResolver, out int readSize)
+        {
+            if (global::MessagePack.MessagePackBinary.IsNil(bytes, offset))
+            {
+                throw new InvalidOperationException("typecode is null, struct not supported");
+            }
+
+            var startOffset = offset;
+            var length = global::MessagePack.MessagePackBinary.ReadArrayHeader(bytes, offset, out readSize);
+            offset += readSize;
+
+            var __Id__ = default(string);
+            var __Host__ = default(string);
+            var __Port__ = default(int);
+            var __ConnectionNumber__ = default(int);
+            var __ConnectionLimit__ = default(int);
+            var __CreateAt__ = default(global::System.DateTimeOffset);
+            var __JoinedConnections__ = default(string[]);
+
+            for (int i = 0; i < length; i++)
+            {
+                var key = i;
+
+                switch (key)
+                {
+                    case 0:
+                        __Id__ = formatterResolver.GetFormatterWithVerify<string>().Deserialize(bytes, offset, formatterResolver, out readSize);
+                        break;
+                    case 1:
+                        __Host__ = formatterResolver.GetFormatterWithVerify<string>().Deserialize(bytes, offset, formatterResolver, out readSize);
+                        break;
+                    case 2:
+                        __Port__ = MessagePackBinary.ReadInt32(bytes, offset, out readSize);
+                        break;
+                    case 3:
+                        __ConnectionNumber__ = MessagePackBinary.ReadInt32(bytes, offset, out readSize);
+                        break;
+                    case 4:
+                        __ConnectionLimit__ = MessagePackBinary.ReadInt32(bytes, offset, out readSize);
+                        break;
+                    case 5:
+                        __CreateAt__ = formatterResolver.GetFormatterWithVerify<global::System.DateTimeOffset>().Deserialize(bytes, offset, formatterResolver, out readSize);
+                        break;
+                    case 6:
+                        __JoinedConnections__ = formatterResolver.GetFormatterWithVerify<string[]>().Deserialize(bytes, offset, formatterResolver, out readSize);
+                        break;
+                    default:
+                        readSize = global::MessagePack.MessagePackBinary.ReadNextBlock(bytes, offset);
+                        break;
+                }
+                offset += readSize;
+            }
+
+            readSize = offset - startOffset;
+
+            var ____result = new global::ChatApp.Shared.MessagePackObjects.RoomDataResponse();
+            ____result.Id = __Id__;
+            ____result.Host = __Host__;
+            ____result.Port = __Port__;
+            ____result.ConnectionNumber = __ConnectionNumber__;
+            ____result.ConnectionLimit = __ConnectionLimit__;
+            ____result.CreateAt = __CreateAt__;
+            ____result.JoinedConnections = __JoinedConnections__;
+            return ____result;
+        }
+    }
+
+
+    public sealed class MatchDataReponseFormatter : global::MessagePack.Formatters.IMessagePackFormatter<global::ChatApp.Shared.MessagePackObjects.MatchDataReponse>
+    {
+
+        public int Serialize(ref byte[] bytes, int offset, global::ChatApp.Shared.MessagePackObjects.MatchDataReponse value, global::MessagePack.IFormatterResolver formatterResolver)
+        {
+            
+            var startOffset = offset;
+            offset += global::MessagePack.MessagePackBinary.WriteFixedArrayHeaderUnsafe(ref bytes, offset, 3);
+            offset += formatterResolver.GetFormatterWithVerify<string>().Serialize(ref bytes, offset, value.MatchId, formatterResolver);
+            offset += formatterResolver.GetFormatterWithVerify<string>().Serialize(ref bytes, offset, value.ClientId, formatterResolver);
+            offset += formatterResolver.GetFormatterWithVerify<global::ChatApp.Shared.MessagePackObjects.RoomDataResponse>().Serialize(ref bytes, offset, value.Room, formatterResolver);
+            return offset - startOffset;
+        }
+
+        public global::ChatApp.Shared.MessagePackObjects.MatchDataReponse Deserialize(byte[] bytes, int offset, global::MessagePack.IFormatterResolver formatterResolver, out int readSize)
+        {
+            if (global::MessagePack.MessagePackBinary.IsNil(bytes, offset))
+            {
+                throw new InvalidOperationException("typecode is null, struct not supported");
+            }
+
+            var startOffset = offset;
+            var length = global::MessagePack.MessagePackBinary.ReadArrayHeader(bytes, offset, out readSize);
+            offset += readSize;
+
+            var __MatchId__ = default(string);
+            var __ClientId__ = default(string);
+            var __Room__ = default(global::ChatApp.Shared.MessagePackObjects.RoomDataResponse);
+
+            for (int i = 0; i < length; i++)
+            {
+                var key = i;
+
+                switch (key)
+                {
+                    case 0:
+                        __MatchId__ = formatterResolver.GetFormatterWithVerify<string>().Deserialize(bytes, offset, formatterResolver, out readSize);
+                        break;
+                    case 1:
+                        __ClientId__ = formatterResolver.GetFormatterWithVerify<string>().Deserialize(bytes, offset, formatterResolver, out readSize);
+                        break;
+                    case 2:
+                        __Room__ = formatterResolver.GetFormatterWithVerify<global::ChatApp.Shared.MessagePackObjects.RoomDataResponse>().Deserialize(bytes, offset, formatterResolver, out readSize);
+                        break;
+                    default:
+                        readSize = global::MessagePack.MessagePackBinary.ReadNextBlock(bytes, offset);
+                        break;
+                }
+                offset += readSize;
+            }
+
+            readSize = offset - startOffset;
+
+            var ____result = new global::ChatApp.Shared.MessagePackObjects.MatchDataReponse();
+            ____result.MatchId = __MatchId__;
+            ____result.ClientId = __ClientId__;
+            ____result.Room = __Room__;
+            return ____result;
+        }
+    }
 
 
     public sealed class JoinRequestFormatter : global::MessagePack.Formatters.IMessagePackFormatter<global::ChatApp.Shared.MessagePackObjects.JoinRequest>
