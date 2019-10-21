@@ -16,5 +16,5 @@ docker push guitarrapc/magiconionchatapp-match:0.0.1
 ```
 
 ```
-kubectl kustomize -f ./k8s/ | kubectl apply -f -
+kubectl kustomize ./k8s/ | kubectl apply -f -
 ```
