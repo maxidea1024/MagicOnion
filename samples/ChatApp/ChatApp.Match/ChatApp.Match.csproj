@@ -20,14 +20,13 @@
   </ItemGroup>
 
   <ItemGroup>
-	<!--<PackageReference Include="AgonesPod" Version="0.4.1" />-->
+	<PackageReference Include="AgonesPod" Version="0.4.2" />
 	<PackageReference Include="MagicOnion.Hosting" Version="2.1.0" />
 	<PackageReference Include="Utf8Json" Version="1.3.7" />
   </ItemGroup>
 
   <ItemGroup>
 	<Folder Include="LinkFromUnity\" />
-	<Folder Include="AgonesPod\" />
   </ItemGroup>
 
 </Project>
