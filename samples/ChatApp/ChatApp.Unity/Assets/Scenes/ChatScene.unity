@@ -1157,7 +1157,7 @@ GameObject:
   - component: {fileID: 904741913}
   - component: {fileID: 904741915}
   m_Layer: 5
-  m_Name: ConnectButton
+  m_Name: MatchtButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1196,7 +1196,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.3137255, g: 0.5686275, b: 0.627451, a: 1}
+  m_Color: {r: 0.627451, g: 0.6210509, b: 0.3137255, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -1696,7 +1696,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Connect
+  m_Text: Enter the match
 --- !u!222 &1147034582
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2450,7 +2450,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.02, y: 0.02}
   m_AnchorMax: {x: 0.98, y: 0.98}
-  m_AnchoredPosition: {x: 0, y: 5.5300093}
+  m_AnchoredPosition: {x: 0, y: 5.530014}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1522127879
@@ -2628,7 +2628,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ChatText: {fileID: 1522127880}
-  ConnectButton: {fileID: 904741915}
+  MatchButton: {fileID: 904741915}
+  MatchButtonText: {fileID: 1147034581}
   JoinOrLeaveButton: {fileID: 1487425765}
   JoinOrLeaveButtonText: {fileID: 771375554}
   SendMessageButton: {fileID: 1383832576}
@@ -2638,6 +2639,7 @@ MonoBehaviour:
   DisconnectButon: {fileID: 1096149281}
   ExceptionButton: {fileID: 1868729447}
   UnaryExceptionButton: {fileID: 2120537443}
+  ClientId: 59ac7411-6ba3-4df5-8960-4a41c2b5cde8
 --- !u!1 &1671399961
 GameObject:
   m_ObjectHideFlags: 0
@@ -2858,7 +2860,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 817501238}
   m_Direction: 3
   m_Value: 1
-  m_Size: 0.9999999
+  m_Size: 0.99999994
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:

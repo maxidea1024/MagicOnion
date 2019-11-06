@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace ChatApp.Match.KubernetesService
+namespace AgonesPod
 {
     public class UnixKubernetesServiceProvider : KubernetesServiceProviderBase
     {

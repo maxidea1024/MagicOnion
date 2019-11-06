@@ -12,10 +12,10 @@ namespace ChatApp.Match.Data
         public string Id { get; set; }
         public string Host { get; set; }
         public int Port { get; set; }
-        public int ConnectionNumber { get; set; }
+        public int ConnectionCount { get; set; }
         public int ConnectionLimit { get; set; }
         public DateTimeOffset CreateAt { get; set; }
-        public BlockingCollection<ConnectionData> JoinedConnections { get; set; }
+        public ConcurrentDictionary<string, ConnectionData> JoinedConnections { get; set; }
     }
 
     public static class RoomDataExtensions
@@ -32,10 +32,10 @@ namespace ChatApp.Match.Data
                 Id = self.Id,
                 Host = self.Host,
                 Port = self.Port,
-                ConnectionNumber = self.ConnectionNumber,
+                ConnectionNumber = self.ConnectionCount,
                 ConnectionLimit= self.ConnectionLimit,
                 CreateAt = self.CreateAt,
-                JoinedConnections = self.JoinedConnections.Select(x => x.ClientId).ToArray(),
+                JoinedConnections = self.JoinedConnections.Select(x => x.Key).ToArray(),
             };
         }
     }

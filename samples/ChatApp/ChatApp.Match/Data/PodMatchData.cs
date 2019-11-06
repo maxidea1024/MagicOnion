@@ -4,9 +4,9 @@ using System.Text;
 
 namespace ChatApp.Match.Data
 {
-    public class ConnectionData
+    public class PodMatchData
     {
         public string ClientId { get; set; }
-        public string FleetName { get; set; }
+        public int Matches { get; set; }
     }
 }

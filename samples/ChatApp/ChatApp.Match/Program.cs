@@ -1,5 +1,4 @@
 ﻿using Grpc.Core;
-using MagicOnion.Agones;
 using MagicOnion.Hosting;
 using MagicOnion.Server;
 using Microsoft.Extensions.Configuration;
@@ -20,11 +19,6 @@ namespace ChatApp.Match
             GrpcEnvironment.SetLogger(new Grpc.Core.Logging.ConsoleLogger());
 
             await MagicOnionHost.CreateDefaultBuilder()
-                .ConfigureServices((context, services) =>
-                {
-                    services.AddSingleton<IAgonesSdk, AgonesSdk>();
-                    //services.AddHostedService<AgonesHostedService>();
-                })
                 .UseMagicOnion(
                     new MagicOnionOptions(isReturnExceptionStackTraceInErrorDetail: true),
                     new ServerPort("0.0.0.0", 12346, ServerCredentials.Insecure))

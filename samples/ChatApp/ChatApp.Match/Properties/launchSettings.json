@@ -1,7 +1,10 @@
 {
   "profiles": {
     "ChatApp.Match": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "environmentVariables": {
+        "FLEET_NAME": "magiconion-chatserver"
+      }
     }
   }
 }

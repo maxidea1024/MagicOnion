@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ChatApp.Match.KubernetesService
+namespace AgonesPod
 {
     public interface IKubernetesServiceProvider
     {
@@ -13,7 +13,7 @@ namespace ChatApp.Match.KubernetesService
         string KubernetesServiceEndPoint { get; }
         bool IsRunningOnKubernetes { get; }
 
-        Task<IGameServerInfo[]> GetGameServersAsync();
-        Task AllocateGameServersAsync();
+        ValueTask<IGameServerInfo[]> GetGameServersAsync();
+        ValueTask<IGameServerAllocationInfo> AllocateGameServerAsync(string fleetName);
     }
 }

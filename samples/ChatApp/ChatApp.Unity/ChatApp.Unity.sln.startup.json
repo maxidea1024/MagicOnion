@@ -52,10 +52,17 @@
         }
     */
     "MultiProjectConfigurations": {
-        "Server + Match": {
+        "Server+Match": {
             "Projects": {
                 "ChatApp.Server": {},
                 "ChatApp.Match": {}
+            }
+        },
+        "Client+Server+Match": {
+            "Projects": {
+                "ChatApp.Server": {},
+                "ChatApp.Match": {},
+                "Assembly-CSharp": {}
             }
         }
     }

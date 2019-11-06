@@ -5,26 +5,43 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using AgonesPod;
 using ChatApp.Match.Data;
-using ChatApp.Match.KubernetesService;
 
 namespace ChatApp.Match.Cache
 {
     public class MatchDataCache
     {
+        // Create / Leave のタイミングで更新
+        // GameServerName : connections
+        public static ConcurrentDictionary<string, int> GameServerConnectionStatus = new ConcurrentDictionary<string, int>();
+        // MatchId : RoomData
         public static ConcurrentDictionary<string, RoomData> Matchings = new ConcurrentDictionary<string, RoomData>();
         private static ReaderWriterLockSlim lockObj = new ReaderWriterLockSlim();
 
-        public static (string matchId, RoomData room) Create(int connectionLimit, string matchId = "")
+        public static async ValueTask<(string matchId, RoomData room)> Create(int connectionLimit, string fleetName, string matchId = "")
         {
             if (string.IsNullOrWhiteSpace(matchId))
             {
                 matchId = Guid.NewGuid().ToString();
             }
-            // TODO: Retrieve GameServer host:port from AgoneSDK.
-            var host = "127.0.0.1";
-            var port = 12345;
-            var gameServers = GameServer.Current;
+
+            // GameServer の状態を更新 (いつの間にか死んでたとか)
+            UpdateGameServerConnectionStatus();
+
+            // connection limit までは新規Allocate せずに既存のGameServer を使う
+            // TODO: Save state to RedisBack Plane for reboot.
+            var gameServer = GameServerConnectionStatus.Where(x => x.Value < connectionLimit).FirstOrDefault();
+            IGameServerInfo gameserverInfo = gameServer.Key == null 
+                ? await GameServer.AllocateAsync(fleetName)
+                : GameServer.Current.Where(x => x.Name == gameServer.Key).FirstOrDefault();
+
+            if (!gameserverInfo.IsAllocated)
+                throw new Exception("Agones could not allocate new node for request.");
+
+            var name = gameserverInfo.Name;
+            var host = gameserverInfo.Address;
+            var port = gameserverInfo.Port;
             var data = new RoomData
             {
                 Id = (host + port).GetHashCode().ToString(),
@@ -32,25 +49,41 @@ namespace ChatApp.Match.Cache
                 Port = port,
                 ConnectionLimit = connectionLimit,
                 CreateAt = DateTimeOffset.UtcNow,
-                JoinedConnections = new BlockingCollection<ConnectionData>(),
+                JoinedConnections = new ConcurrentDictionary<string, ConnectionData>(),
             };
 
-            using (var wl = new WriteLock())
+            using (var wl = new WriteLock(lockObj))
             {
-                if (Matchings.TryAdd(matchId, data))
+                if (!Matchings.TryAdd(matchId, data))
                     throw new KeyNotFoundException("failed to obtain server.");
                 return (matchId, data);
             }
+
+            void UpdateGameServerConnectionStatus()
+            {
+                var current = AgonesPod.GameServer.Current;
+                foreach (var item in current)
+                {
+                    if (!GameServerConnectionStatus.TryGetValue(item.Name, out var _))
+                    {
+                        GameServerConnectionStatus.TryAdd(item.Name, 0);
+                    }
+                }
+            }
         }
 
-        public static (RoomData joinedRoom, bool isCompleted) Join(string matchId, ConnectionData connection)
+        public static void Join(string matchId, ConnectionData connection, RoomData room)
         {
-            var room = Get(matchId);
             using (var wl = new WriteLock(lockObj))
             {
-                if (!room.JoinedConnections.TryAdd(connection))
+                if (room.JoinedConnections.TryAdd(connection.ClientId, connection))
+                {
+                    room.ConnectionCount++;
+                }
+                else
+                {
                     throw new Exception($"failed to join match: {matchId}");
-                return (room, room.JoinedConnections.Count == room.JoinedConnections.BoundedCapacity);
+                }
             }
         }
 
@@ -63,7 +96,7 @@ namespace ChatApp.Match.Cache
         {
             foreach (var match in Matchings)
             {
-                if (match.Value.JoinedConnections.Any(x => x.ClientId == connection.ClientId))
+                if (match.Value.JoinedConnections.Any(x => x.Key == connection.ClientId))
                 {
                     return (true, match.Key);
                 }
@@ -91,21 +124,27 @@ namespace ChatApp.Match.Cache
 
         public static RoomData Leave(string matchId, string clientId)
         {
-            var connection = new ConnectionData
-            {
-                ClientId = clientId,
-            };
+            // Agones Serverは殺さない
+            // TODO: Agones Server を外からShutdown したくない。ので殺すときはアプリケーションから agones sdk の Shutdown を呼び出したいお気持ち
             var room = Get(matchId);
             using (var wl = new WriteLock(lockObj))
             {
-                if (!room.JoinedConnections.Remove<ConnectionData>(connection))
-                    throw new Exception($"failed to leave from match: {matchId}");
-                if (room.JoinedConnections.Count == 0)
+                if (room.JoinedConnections.TryRemove(clientId, out var _))
                 {
-                    Delete(matchId);
+                    room.ConnectionCount--;
                 }
-                return room;
+                else
+                {
+                    throw new Exception($"failed to leave from match: {matchId}");
+                }
             }
+
+            // 最後の接続者だったときにMatching が消す
+            if (room.JoinedConnections.Count == 0)
+            {
+                Delete(matchId);
+            }
+            return room;
         }
     }
 

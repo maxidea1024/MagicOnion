@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace ChatApp.Match.KubernetesService
+namespace AgonesPod
 {
     public class GameServer
     {
@@ -32,16 +34,19 @@ namespace ChatApp.Match.KubernetesService
 
                 if (!_serviceProvider.IsRunningOnKubernetes)
                 {
+                    Debug.WriteLine("current environment is not k8s.");
                     _current = new[] { new PseudoGameServerInfo() };
                     return;
                 }
 
                 try
                 {
+                    Debug.WriteLine("Try Get GameServersAsync.");
                     _current = _serviceProvider.GetGameServersAsync().GetAwaiter().GetResult();
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    Debug.WriteLine($"Failed to get gameserver. {ex.Message} {ex.StackTrace} \nInner: {ex.InnerException}");
                     if (throwOnFail)
                     {
                         throw;
@@ -54,14 +59,19 @@ namespace ChatApp.Match.KubernetesService
             }
         }
 
+        public static async ValueTask<IGameServerAllocationInfo> AllocateAsync(string fleetName)
+        {
+            return await _serviceProvider.AllocateGameServerAsync(fleetName);
+        }
+
         public static void RegisterServiceProvider(IKubernetesServiceProvider provider)
             => _serviceProvider = provider ?? throw new ArgumentNullException(nameof(provider));
 
         private static IKubernetesServiceProvider GetDefaultProvider()
         {
-            return (Environment.OSVersion.Platform == PlatformID.Unix)
+            return Environment.OSVersion.Platform == PlatformID.Unix
                 ? (IKubernetesServiceProvider)new UnixKubernetesServiceProvider()
-                : throw new NotImplementedException("Windows is not supported");
+                : (IKubernetesServiceProvider)new WindowsKubernetesServiceProvider();
         }
     }
 }

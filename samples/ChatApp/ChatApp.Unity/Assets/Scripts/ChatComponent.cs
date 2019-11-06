@@ -20,14 +20,15 @@ namespace Assets.Scripts
         private IChatHub streamingClient;
         private IChatService client;
         private IAgonesService agonesClient;
-        private string clientId = Guid.NewGuid().ToString();
 
         private bool isJoin;
         private bool isSelfDisConnected;
+        private string matchId;
 
         public Text ChatText;
 
-        public Button ConnectButton;
+        public Button MatchButton;
+        public Text MatchButtonText;
 
         public Button JoinOrLeaveButton;
 
@@ -44,6 +45,7 @@ namespace Assets.Scripts
         public Button DisconnectButon;
         public Button ExceptionButton;
         public Button UnaryExceptionButton;
+        public string ClientId = Guid.NewGuid().ToString();
 
 
         void Start()
@@ -80,8 +82,8 @@ namespace Assets.Scripts
         {
             // Initialize the Hub
             //this.channel = new Channel("localhost", 12345, ChannelCredentials.Insecure);
-            //this.channel = new Channel("localhost", 12345, ChannelCredentials.Insecure);
-            this.channel = new Channel("13.231.213.229", 7126, ChannelCredentials.Insecure);
+            this.channel = new Channel("localhost", 12345, ChannelCredentials.Insecure);
+            //this.channel = new Channel("13.231.213.229", 7126, ChannelCredentials.Insecure);
 
             // for SSL/TLS connection
             //var serverCred = new SslCredentials(File.ReadAllText(Path.Combine(Application.streamingAssetsPath, "server.crt")));
@@ -101,6 +103,7 @@ namespace Assets.Scripts
             this.ChatText.text = string.Empty;
             this.Input.text = string.Empty;
             this.Input.placeholder.GetComponent<Text>().text = "Please enter your name.";
+            this.MatchButtonText.text = "Enter the match";
             this.JoinOrLeaveButtonText.text = "Enter the room";
             this.ExceptionButton.interactable = false;
         }
@@ -137,7 +140,7 @@ namespace Assets.Scripts
         {
             this.isSelfDisConnected = true;
 
-            this.ConnectButton.interactable = false;
+            this.MatchButton.interactable = false;
             this.JoinOrLeaveButton.interactable = false;
             this.SendMessageButton.interactable = false;
             this.SendReportButton.interactable = false;
@@ -158,7 +161,7 @@ namespace Assets.Scripts
             this.RegisterDisconnectEvent(streamingClient);
             Debug.Log("Reconnected server.");
 
-            this.JoinOrLeaveButton.interactable = true;
+            this.MatchButton.interactable = true;
             this.JoinOrLeaveButton.interactable = true;
             this.SendMessageButton.interactable = false;
             this.SendReportButton.interactable = true;
@@ -169,26 +172,47 @@ namespace Assets.Scripts
             this.isSelfDisConnected = false;
         }
 
+        private async Task<(string host, int port)> ConnectMatching()
+        {
+            Debug.Log("Connect");
+            var matchResponse = await matchingClient.GetAsync(ClientId);
+            matchId = matchResponse.MatchId;
+            MatchButtonText.text = "matched!";
+            Debug.Log($"connectionInfo, matchId: {matchResponse.MatchId}, host: {matchResponse.Room.Host}, port: {matchResponse.Room.Port}");
+
+            var host = matchResponse.Room.Host;
+            var port = matchResponse.Room.Port;
+            if (!System.Net.IPAddress.TryParse(host, out var _))
+            {
+                host = "127.0.0.1";
+                port = 12345;
+
+                Debug.Log($"override connectionInfo, matchId: {matchResponse.MatchId}, host: {host}, port: {port}");
+            }
+            return (host, port);
+        }
+
         #region Client -> Server (Unary)
         public async void Connect()
         {
             Debug.Log("Connect");
-            var matchResponse = await matchingClient.GetAsync(clientId);
-            Debug.Log($"connectionInfo, host: {matchResponse.Room.Host}, port: {matchResponse.Room.Port}");
+            var (host, port) = await ConnectMatching();
 
             //var res = await matchingAgones.GetGameServer();
             //Debug.Log($"connectionInfo, host: {res.Host}, port: {res.Port}");
 
             //// Initialize the Hub
             //this.channel = new Channel(res.Host, res.Port, ChannelCredentials.Insecure);
+            this.channel = new Channel(host, port, ChannelCredentials.Insecure);
 
             //// for SSL/TLS connection
             ////var serverCred = new SslCredentials(File.ReadAllText(Path.Combine(Application.streamingAssetsPath, "server.crt")));
             ////this.channel = new Channel("test.example.com", 12345, serverCred);
-            //this.streamingClient = StreamingHubClient.Connect<IChatHub, IChatHubReceiver>(this.channel, this);
-            //this.RegisterDisconnectEvent(streamingClient);
-            //this.client = MagicOnionClient.Create<IChatService>(this.channel);
-            //this.agonesClient = MagicOnionClient.Create<IAgonesService>(this.channel);
+            
+            this.streamingClient = StreamingHubClient.Connect<IChatHub, IChatHubReceiver>(this.channel, this);
+            this.RegisterDisconnectEvent(streamingClient);
+            this.client = MagicOnionClient.Create<IChatService>(this.channel);
+            this.agonesClient = MagicOnionClient.Create<IAgonesService>(this.channel);
         }
         #endregion
 
@@ -198,11 +222,15 @@ namespace Assets.Scripts
             if (this.isJoin)
             {
                 await this.streamingClient.LeaveAsync();
-
+                await matchingClient.LeaveAsync(matchId, ClientId);
                 this.InitializeUi();
             }
             else
             {
+                var matchResponse = await matchingClient.JoinAsync(this.matchId, this.ClientId);
+                this.MatchButtonText.text = "matched!";
+                Debug.Log($"connectionInfo, matchId: {matchResponse.MatchId}, host: {matchResponse.Room.Host}, port: {matchResponse.Room.Port}");
+
                 var request = new JoinRequest { RoomName = "SampleRoom", UserName = this.Input.text };
                 await this.streamingClient.JoinAsync(request);
                 await this.agonesClient.Allocate();

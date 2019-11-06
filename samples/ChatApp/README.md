@@ -1,9 +1,15 @@
 server
 
 ```
-docker build -t agones-udp-server-magiconionchatapp:0.1.1 -f ChatApp.Server/Dockerfile .
-docker tag agones-udp-server-magiconionchatapp:0.1.1 guitarrapc/agones-udp-server-magiconionchatapp:0.1.1
-docker push guitarrapc/agones-udp-server-magiconionchatapp:0.1.1
+docker build -t agones-magiconionchatapp:0.1.3 -f ChatApp.Server/Dockerfile .
+docker tag agones-magiconionchatapp:0.1.3 guitarrapc/agones-magiconionchatapp:0.1.3
+docker push guitarrapc/agones-magiconionchatapp:0.1.3
+```
+
+```
+kubectl apply -f ./k8s/fleet-magiconionchatapp.yaml
+kubectl get fleet -w
+kubectl delete -f ./k8s/fleet-magiconionchatapp.yaml
 ```
 
 
@@ -18,3 +24,4 @@ docker push guitarrapc/magiconionchatapp-match:0.0.1
 ```
 kubectl kustomize ./k8s/ | kubectl apply -f -
 ```
+

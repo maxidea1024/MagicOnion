@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ChatApp.Match.KubernetesService.Respones
+namespace AgonesPod.KubernetesService.Respones
 {
     public class GameServersResponse
     {
