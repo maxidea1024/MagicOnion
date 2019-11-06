@@ -18,7 +18,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: match
-  namespace: default
   labels:
     app: match
 spec:
@@ -31,13 +30,13 @@ spec:
       labels:
         app: match
     spec:
-      serviceAccount: agones
+      serviceAccount: agones-rest
       containers:
       - name: match
-        image: guitarrapc/magiconionchatapp-match:0.0.1
+        image: guitarrapc/magiconionchatapp-match:0.0.2
         imagePullPolicy: Always
         ports:
-        - name: match
+        - name: grpc
           containerPort: 12346
         livenessProbe:
           tcpSocket:

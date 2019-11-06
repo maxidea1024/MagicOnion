@@ -1,6 +1,6 @@
 FROM mcr.microsoft.com/dotnet/core/runtime:2.2-stretch-slim AS base
 #FROM mcr.microsoft.com/dotnet/core/runtime:2.2 AS base
-EXPOSE 12345
+EXPOSE 12346
 WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/core/sdk:2.2-stretch AS build

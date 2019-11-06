@@ -16,12 +16,13 @@ kubectl delete -f ./k8s/fleet-magiconionchatapp.yaml
 match
 
 ```
-docker build -t magiconionchatapp-match:0.0.1 -f ChatApp.Match/Dockerfile .
-docker tag magiconionchatapp-match:0.0.1 guitarrapc/magiconionchatapp-match:0.0.1
-docker push guitarrapc/magiconionchatapp-match:0.0.1
+docker build -t magiconionchatapp-match:0.0.2 -f ChatApp.Match/Dockerfile .
+docker tag magiconionchatapp-match:0.0.2 guitarrapc/magiconionchatapp-match:0.0.2
+docker push guitarrapc/magiconionchatapp-match:0.0.2
 ```
 
 ```
 kubectl kustomize ./k8s/ | kubectl apply -f -
+kubectl kustomize ./k8s/ | kubectl delete -f -
 ```
 
