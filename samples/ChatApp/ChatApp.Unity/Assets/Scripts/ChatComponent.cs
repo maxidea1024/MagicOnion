@@ -29,6 +29,7 @@ namespace Assets.Scripts
 
         public Button MatchButton;
         public Text MatchButtonText;
+        public Text MatchIdText;
 
         public Button JoinOrLeaveButton;
 
@@ -104,8 +105,18 @@ namespace Assets.Scripts
             this.Input.text = string.Empty;
             this.Input.placeholder.GetComponent<Text>().text = "Please enter your name.";
             this.MatchButtonText.text = "Enter the match";
+            this.MatchIdText.text = "MatchId";
+            this.JoinOrLeaveButton.interactable = false;
             this.JoinOrLeaveButtonText.text = "Enter the room";
             this.ExceptionButton.interactable = false;
+        }
+
+        private void MatchedUi()
+        {
+            this.isJoin = false;
+
+            this.MatchIdText.text = "matched!";
+            this.JoinOrLeaveButton.interactable = true;
         }
 
 
@@ -176,9 +187,10 @@ namespace Assets.Scripts
         {
             Debug.Log("Connect");
             var matchResponse = await matchingClient.GetAsync(ClientId);
-            matchId = matchResponse.MatchId;
+            this.matchId = matchResponse.MatchId;
             MatchButtonText.text = "matched!";
-            Debug.Log($"connectionInfo, matchId: {matchResponse.MatchId}, host: {matchResponse.Room.Host}, port: {matchResponse.Room.Port}");
+            MatchIdText.text = this.matchId;
+            Debug.Log($"connectionInfo, cliendId: {ClientId}, matchId: {matchResponse.MatchId}, host: {matchResponse.Room.Host}, port: {matchResponse.Room.Port}");
 
             var host = matchResponse.Room.Host;
             var port = matchResponse.Room.Port;
@@ -197,6 +209,7 @@ namespace Assets.Scripts
         {
             Debug.Log("Connect");
             var (host, port) = await ConnectMatching();
+            MatchedUi();
 
             //var res = await matchingAgones.GetGameServer();
             //Debug.Log($"connectionInfo, host: {res.Host}, port: {res.Port}");
@@ -227,9 +240,11 @@ namespace Assets.Scripts
             }
             else
             {
+                // reconnect previous match
                 var matchResponse = await matchingClient.JoinAsync(this.matchId, this.ClientId);
-                this.MatchButtonText.text = "matched!";
-                Debug.Log($"connectionInfo, matchId: {matchResponse.MatchId}, host: {matchResponse.Room.Host}, port: {matchResponse.Room.Port}");
+                MatchedUi();
+                MatchIdText.text = this.matchId;
+                Debug.Log($"connectionInfo, cliendId: {ClientId}, matchId: {matchResponse.MatchId}, host: {matchResponse.Room.Host}, port: {matchResponse.Room.Port}");
 
                 var request = new JoinRequest { RoomName = "SampleRoom", UserName = this.Input.text };
                 await this.streamingClient.JoinAsync(request);
