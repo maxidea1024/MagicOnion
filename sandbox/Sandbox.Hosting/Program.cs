@@ -32,7 +32,7 @@ namespace Sandbox.Hosting
 
             var hostTask = MagicOnionHost.CreateDefaultBuilder()
                 //.UseMagicOnion()
-                .UseMagicOnion(types: new [] { typeof(MyService), typeof(MyHub) })
+                .UseMagicOnion(types: new[] { typeof(MyService), typeof(MyHub) })
                 .UseMagicOnion(configurationName: "MagicOnion-Management", types: new[] { typeof(ManagementService) })
                 .ConfigureServices((hostContext, services) =>
                 {
